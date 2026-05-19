@@ -1,0 +1,341 @@
+@import "tailwindcss";
+
+:root {
+  --primary-base: #0284c7; /* Sky 600 - Main */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-200: #bae6fd;
+  --primary-300: #7dd3fc;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
+  --secondary-base: #f97316; /* Orange */
+  --accent-base: #14b8a6; /* Teal */
+  --warning-base: #eab308; /* Yellow */
+  --background-base: #f8fafc; /* Slate 50 */
+}
+
+.dark {
+  --primary-base: #8b5cf6; /* Violet 500 - Main */
+  --primary-50: #f5f3ff;
+  --primary-100: #ede9fe;
+  --primary-200: #ddd6fe;
+  --primary-300: #c4b5fd;
+  --primary-400: #a78bfa;
+  --primary-500: #8b5cf6;
+  --primary-700: #6d28d9;
+  --primary-800: #5b21b6;
+  --primary-900: #4c1d95;
+  --secondary-base: #f43f5e; /* Rose */
+  --accent-base: #10b981; /* Emerald */
+  --warning-base: #f59e0b; /* Amber */
+  --background-base: #0f172a; /* Slate 900 */
+}
+
+@theme {
+  --color-primary: var(--primary-base);
+  --color-secondary: var(--secondary-base);
+  --color-accent: var(--accent-base);
+  --color-warning: var(--warning-base);
+  --color-background: var(--background-base);
+
+  /* Override Tailwind's default indigo palette so it maps to our dynamic primary palette */
+  --color-indigo-50: var(--primary-50);
+  --color-indigo-100: var(--primary-100);
+  --color-indigo-200: var(--primary-200);
+  --color-indigo-300: var(--primary-300);
+  --color-indigo-400: var(--primary-400);
+  --color-indigo-500: var(--primary-500);
+  --color-indigo-600: var(--primary-base);
+  --color-indigo-700: var(--primary-700);
+  --color-indigo-800: var(--primary-800);
+  --color-indigo-900: var(--primary-900);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-slate-800 antialiased font-sans transition-colors duration-300;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Dark mode base */
+  .dark body,
+  html.dark body {
+    background-color: #0f172a;
+    color: #e2e8f0;
+  }
+}
+
+/* ============ DARK MODE OVERRIDES ============ */
+
+/* Background & Surface colors */
+.dark .bg-slate-50,
+.dark .bg-slate-50\/50,
+.dark .bg-\[#f8fafc\],
+.dark .bg-background {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-white,
+.dark .bg-white\/70 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #334155 !important;
+}
+
+/* Text colors */
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Border colors */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-200\/50,
+.dark .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+/* Form inputs */
+.dark .bg-slate-50 input,
+.dark .bg-slate-50 textarea,
+.dark .bg-slate-50 select,
+.dark input.bg-slate-50,
+.dark textarea.bg-slate-50,
+.dark select.bg-slate-50 {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Cards and surfaces */
+.dark .card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark .shadow-sm,
+.dark .shadow-lg,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  --tw-shadow-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .shadow-slate-200\/60,
+.dark .shadow-slate-200\/50,
+.dark .shadow-slate-200\/30 {
+  --tw-shadow-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Dropdown, popover & modal backgrounds */
+.dark .bg-white.rounded-3xl,
+.dark .bg-white.rounded-\[2\.5rem\],
+.dark .bg-white.rounded-\[2rem\] {
+  background-color: #1e293b !important;
+}
+
+/* Subtle background tints in dark mode */
+.dark .bg-slate-50\/30 {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+.dark .bg-indigo-50\/50 {
+  background-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+.dark .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+.dark .bg-emerald-100,
+.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+.dark .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.12) !important;
+}
+
+.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+.dark .bg-orange-50 {
+  background-color: rgba(249, 115, 22, 0.15) !important;
+}
+
+.dark .bg-pink-50 {
+  background-color: rgba(236, 72, 153, 0.15) !important;
+}
+
+.dark .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+}
+
+/* Footer */
+.dark footer.bg-white {
+  background-color: #1e293b !important;
+}
+
+.dark .border-t.border-slate-100 {
+  border-color: #334155 !important;
+}
+
+/* CTA Section - keep dark as-is */
+.dark .bg-slate-900 {
+  background-color: #020617 !important;
+}
+
+/* Navbar backdrop */
+.dark nav.bg-white\/70 {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(16px);
+}
+
+.dark .backdrop-blur-xl {
+  backdrop-filter: blur(16px);
+}
+
+/* ============ ANIMATIONS ============ */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.8s ease-out forwards;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center px-4 py-2 bg-primary text-white font-medium rounded-xl hover:bg-indigo-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+@utility btn-secondary {
+  @apply btn bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus:ring-slate-500;
+}
+
+@utility card {
+  @apply bg-white rounded-2xl shadow-sm border border-slate-100 p-6;
+}
+
+@utility input-field {
+  @apply w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all;
+}
+@keyframes zoom-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slide-in-from-top {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-zoom-in {
+  animation: zoom-in 0.3s ease-out forwards;
+}
+
+.animate-slide-in-from-top {
+  animation: slide-in-from-top 0.4s ease-out forwards;
+}
+
+/* ============ THEME TOGGLE BUTTON ============ */
+
+.theme-toggle {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.dark .theme-toggle {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  border-color: #4338ca;
+}
+
+.theme-toggle .toggle-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #fbbf24;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark .theme-toggle .toggle-thumb {
+  transform: translateX(28px);
+  background: #818cf8;
+  box-shadow: 0 2px 8px rgba(129, 140, 248, 0.4);
+}
