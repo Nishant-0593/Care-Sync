@@ -8,25 +8,22 @@ const initializeSocket = require('./socket');
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to databases
-connectDB();
-connectPostgres();
-
 // Create HTTP server wrapping Express app
 const server = http.createServer(app);
 
 // Initialize Socket.io
 const io = new Server(server, {
     cors: {
-        origin: "*", // Adjust in production
+        origin: process.env.FRONTEND_URL || '*',
         methods: ["GET", "POST"]
     }
 });
 initializeSocket(io);
 
-// Connect to Database
+// Connect to databases and start server
 connectDB().then(() => {
+    connectPostgres();
     server.listen(PORT, () => {
-        console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+        console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     });
 });

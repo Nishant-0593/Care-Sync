@@ -3,6 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { LogOut, User, MessageCircle, Heart, Bell, LayoutDashboard, Sun, Moon } from 'lucide-react';
+import API_URL from '../config';
+
+const BACKEND_URL = API_URL.replace('/api', '');
 
 const ThemeToggle = () => {
     const { darkMode, toggleTheme } = useContext(ThemeContext);
@@ -60,7 +63,7 @@ const Navbar = () => {
                             <MessageCircle size={18} />
                             Messages
                         </Link>
-                        <a href="http://localhost:5001/notice" target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors flex items-center gap-2">
+                        <a href={`${BACKEND_URL}/notice`} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors flex items-center gap-2">
                             <Bell size={18} />
                             Notices
                         </a>

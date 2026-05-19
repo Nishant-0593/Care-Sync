@@ -1,0 +1,55 @@
+# Render Blueprint - Infrastructure as Code
+# Deploy both backend and frontend from a single repo
+
+services:
+  # Backend Web Service
+  - type: web
+    name: caresync-backend
+    runtime: node
+    region: oregon
+    rootDir: Backend
+    buildCommand: npm install
+    startCommand: node src/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: FROM_EMAIL
+        value: noreply@caresync.com
+      - key: FROM_NAME
+        value: CareSync
+      - key: ADMIN_SIGNUP_KEY
+        sync: false
+      - key: TEACHER_SIGNUP_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false  # Will be set after frontend deploys
+
+  # Frontend Static Site
+  - type: web
+    name: caresync-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

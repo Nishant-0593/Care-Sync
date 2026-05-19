@@ -2,6 +2,9 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
+import API_URL from '../config';
+
+const BACKEND_URL = API_URL.replace('/api', '');
 import { 
   ShieldCheck, 
   Clock, 
@@ -55,7 +58,7 @@ const Home = () => {
                     <MessageCircle size={18} />
                     Messages
                   </Link>
-                  <a href="http://localhost:5001/notice" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-primary font-semibold transition-colors">
+                  <a href={`${BACKEND_URL}/notice`} target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-primary font-semibold transition-colors">
                     Notices
                   </a>
                   <Link to={getDashboardPath(user.role)} className="btn-secondary flex items-center gap-2 px-5 py-2.5 rounded-2xl border-2">
@@ -69,7 +72,7 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-4">
-                  <a href="http://localhost:5001/notice" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-primary font-semibold transition-colors mr-4">
+                  <a href={`${BACKEND_URL}/notice`} target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-primary font-semibold transition-colors mr-4">
                     Official Notices
                   </a>
                   <Link to="/login" className="text-slate-900 font-bold hover:text-primary transition-colors">Log In</Link>
