@@ -287,46 +287,12 @@ const Login = () => {
                 </div>
                 
                 {view === 'login' && (
-                <div className="mt-8">
-                    <p className="text-center text-slate-600 font-medium mb-6">
-                        New to CareSync?{' '}
-                        <Link to="/signup" className="text-primary font-bold hover:underline transition-all">
-                            Create an account
-                        </Link>
-                    </p>
-                    
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-fade-in">
-                        <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
-                            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider text-center">Demo Accounts</h3>
-                        </div>
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-slate-500 bg-white border-b border-slate-100">
-                                <tr>
-                                    <th className="px-4 py-3 font-semibold">Role</th>
-                                    <th className="px-4 py-3 font-semibold">Email</th>
-                                    <th className="px-4 py-3 font-semibold">Password</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                <tr className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-4 py-3 font-medium text-slate-900">Admin</td>
-                                    <td className="px-4 py-3 text-slate-600">admin@caresync.com</td>
-                                    <td className="px-4 py-3 text-slate-500 font-mono text-xs">admin123</td>
-                                </tr>
-                                <tr className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-4 py-3 font-medium text-slate-900">Teacher</td>
-                                    <td className="px-4 py-3 text-slate-600">teacher@caresync.com</td>
-                                    <td className="px-4 py-3 text-slate-500 font-mono text-xs">teacher123</td>
-                                </tr>
-                                <tr className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-4 py-3 font-medium text-slate-900">Parent</td>
-                                    <td className="px-4 py-3 text-slate-600">parent@caresync.com</td>
-                                    <td className="px-4 py-3 text-slate-500 font-mono text-xs">parent123</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <p className="mt-8 text-center text-slate-600 font-medium">
+                    New to CareSync?{' '}
+                    <Link to="/signup" className="text-primary font-bold hover:underline transition-all">
+                        Create an account
+                    </Link>
+                </p>
                 )}
             </div>
         </div>
