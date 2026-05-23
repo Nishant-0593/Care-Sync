@@ -8,6 +8,7 @@ const mealRoutes = require('./mealRoutes');
 const activityRoutes = require('./activityRoutes');
 const messageRoutes = require('./messageRoutes');
 const noticeRoutes = require('./noticeRoutes');
+const newsletterRoutes = require('./newsletterRoutes');
 
 const { getNoticeBoard } = require('../controllers/noticeController');
 
@@ -27,5 +28,6 @@ router.use('/meals', mealRoutes);
 router.use('/activities', activityRoutes);
 router.use('/messages', messageRoutes);
 router.use('/notices', noticeRoutes);
+router.use('/newsletter', newsletterRoutes);
 
 module.exports = router;
