@@ -13,6 +13,9 @@ import ChildManagement from './pages/ChildManagement';
 import UserManagement from './pages/UserManagement';
 import AdminSettings from './pages/AdminSettings';
 import Chat from './pages/Chat';
+import Notices from './pages/Notices';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useContext(AuthContext);
@@ -43,6 +46,9 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={user ? <Navigate to={getDashboardPath(user.role)} /> : <Login />} />
           <Route path="/signup" element={user ? <Navigate to={getDashboardPath(user.role)} /> : <Signup />} />
+          <Route path="/notices" element={<Notices />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           
           {/* Protected Routes */}
           <Route 

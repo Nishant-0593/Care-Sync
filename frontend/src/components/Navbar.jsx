@@ -63,10 +63,10 @@ const Navbar = () => {
                             <MessageCircle size={18} />
                             Messages
                         </Link>
-                        <a href={`${BACKEND_URL}/notice`} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors flex items-center gap-2">
+                        <Link to="/notices" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors flex items-center gap-2">
                             <Bell size={18} />
                             Notices
-                        </a>
+                        </Link>
                     </div>
 
                     <div className="flex items-center gap-4">

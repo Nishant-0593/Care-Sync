@@ -253,14 +253,14 @@ const Chat = () => {
                                     <div className="p-8 text-center text-slate-400 text-sm">No users found</div>
                                 ) : (
                                     searchResults.map(result => (
-                                        <div key={result._id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors border-b border-slate-50">
+                                        <div key={result._id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-50 dark:border-slate-800">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">
+                                                <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500 dark:text-slate-300">
                                                     {result.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-sm text-slate-800">{result.name}</div>
-                                                    <div className="text-[10px] text-slate-400 uppercase">{result.role}</div>
+                                                    <div className="font-bold text-sm text-slate-800 dark:text-slate-200">{result.name}</div>
+                                                    <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">{result.role}</div>
                                                 </div>
                                             </div>
                                             <button 
@@ -449,8 +449,8 @@ const Chat = () => {
 const ContactItem = ({ contact, selectedContact, setSelectedContact, onlineUsers }) => (
     <div 
         onClick={() => setSelectedContact(contact)}
-        className={`p-4 flex items-center gap-3 cursor-pointer transition-all hover:bg-slate-50 ${
-            selectedContact?._id === contact._id ? 'bg-indigo-50/50 border-r-4 border-primary' : ''
+        className={`p-4 flex items-center gap-3 cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800 ${
+            selectedContact?._id === contact._id ? 'bg-indigo-50/50 dark:bg-indigo-900/30 border-r-4 border-primary' : ''
         }`}
     >
         <div className="relative">
@@ -460,17 +460,17 @@ const ContactItem = ({ contact, selectedContact, setSelectedContact, onlineUsers
                 {contact.name.charAt(0).toUpperCase()}
             </div>
             {onlineUsers.has(contact._id) && (
-                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></div>
+                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
             )}
         </div>
         <div className="flex-1 min-w-0">
             <div className="flex justify-between items-baseline">
-                <h3 className="font-semibold text-slate-800 truncate">{contact.name}</h3>
-                <span className="text-[10px] uppercase font-bold text-slate-400 px-1.5 py-0.5 bg-slate-100 rounded">
+                <h3 className="font-semibold text-slate-800 dark:text-slate-200 truncate">{contact.name}</h3>
+                <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">
                     {contact.role}
                 </span>
             </div>
-            <p className="text-xs text-slate-500 truncate">
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                 {onlineUsers.has(contact._id) ? 'Online' : 'Offline'}
             </p>
         </div>

@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import API_URL from '../config';
@@ -30,12 +31,19 @@ import {
   Smile,
   ArrowRight,
   Award,
-  ChevronUp
+  ChevronUp,
+  Menu,
+  X,
+  AlertTriangle
 } from 'lucide-react';
 
 const Home = () => {
   const { user, logout } = useContext(AuthContext);
   const { darkMode, toggleTheme } = useContext(ThemeContext);
+
+  // --- UI States ---
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [newsletterMsg, setNewsletterMsg] = useState({ type: '', text: '' }); // type: 'success' | 'error' | ''
 
   // --- Dynamic Widget States ---
   const [activePreviewTab, setActivePreviewTab] = useState('parent'); // 'parent' | 'teacher'
@@ -199,12 +207,29 @@ const Home = () => {
     setTimeout(() => setTeacherToast(''), 4000);
   };
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     if (!newsletterEmail.trim()) return;
-    setNewsletterSubscribed(true);
-    setNewsletterEmail('');
-    setTimeout(() => setNewsletterSubscribed(false), 5000);
+
+    try {
+      setNewsletterMsg({ type: '', text: '' });
+      const res = await axios.post(`${API_URL}/newsletter`, { email: newsletterEmail });
+      if (res.data && res.data.success) {
+        setNewsletterSubscribed(true);
+        setNewsletterMsg({ type: 'success', text: res.data.message || 'Thank you! Check your inbox for our onboarding guide.' });
+        setNewsletterEmail('');
+        setTimeout(() => {
+          setNewsletterSubscribed(false);
+          setNewsletterMsg({ type: '', text: '' });
+        }, 6000);
+      }
+    } catch (err) {
+      console.error('Newsletter error:', err);
+      const errMsg = err.response?.data?.message || 'Error subscribing to newsletter. Please try again.';
+      setNewsletterMsg({ type: 'error', text: errMsg });
+      // Clear error after 5s
+      setTimeout(() => setNewsletterMsg({ type: '', text: '' }), 5000);
+    }
   };
 
   const getDashboardPath = (role) => {
@@ -249,9 +274,9 @@ const Home = () => {
                     <MessageCircle size={18} />
                     Messages
                   </Link>
-                  <a href={`${BACKEND_URL}/notice`} target="_blank" rel="noopener noreferrer" className="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-semibold transition-colors">
+                  <Link to="/notices" className="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-semibold transition-colors">
                     Notices
-                  </a>
+                  </Link>
                   <Link to={getDashboardPath(user.role)} className="px-5 py-2.5 bg-slate-900 dark:bg-slate-800 text-white font-bold rounded-2xl flex items-center gap-2 hover:bg-primary hover:scale-[1.03] transition-all duration-300 text-sm">
                     <LayoutDashboard size={16} />
                     Dashboard
@@ -263,9 +288,9 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-5 pl-2 border-l border-slate-200 dark:border-slate-800">
-                  <a href={`${BACKEND_URL}/notice`} target="_blank" rel="noopener noreferrer" className="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-semibold transition-colors text-sm mr-2">
+                  <Link to="/notices" className="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-semibold transition-colors text-sm mr-2">
                     Notices
-                  </a>
+                  </Link>
                   <Link to="/login" className="text-slate-900 dark:text-slate-200 font-bold hover:text-primary dark:hover:text-violet-400 transition-colors text-sm">Log In</Link>
                   <Link to="/signup" className="px-6 py-3 rounded-2xl font-bold bg-primary hover:bg-primary/95 text-white shadow-lg shadow-primary/25 hover:scale-[1.03] active:scale-98 transition-all duration-300 text-sm">
                     Get Started
@@ -297,18 +322,94 @@ const Home = () => {
                   {darkMode ? <Moon size={12} className="text-white" /> : <Sun size={12} className="text-amber-800" />}
                 </div>
               </button>
-              {user ? (
-                <Link to={getDashboardPath(user.role)} className="p-2.5 bg-primary rounded-xl text-white">
-                  <LayoutDashboard size={18} />
-                </Link>
-              ) : (
-                <Link to="/login" className="px-4 py-2 bg-primary rounded-xl text-white font-bold text-xs">
-                  Login
-                </Link>
-              )}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 text-slate-650 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl transition-colors"
+                aria-label="Toggle Menu"
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden fixed top-20 left-0 w-full z-45 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-b border-slate-200 dark:border-slate-800 py-6 px-6 space-y-4 shadow-xl animate-slide-up">
+            <div className="flex flex-col gap-4">
+              <a 
+                href="#features" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-slate-650 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-bold text-sm py-2 border-b border-slate-100 dark:border-slate-800/60"
+              >
+                Features
+              </a>
+              <a 
+                href="#calculator" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-slate-650 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-bold text-sm py-2 border-b border-slate-100 dark:border-slate-800/60"
+              >
+                Impact
+              </a>
+              <a 
+                href="#testimonials" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-slate-650 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-bold text-sm py-2 border-b border-slate-100 dark:border-slate-800/60"
+              >
+                Reviews
+              </a>
+              <Link 
+                to="/notices" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-slate-650 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-bold text-sm py-2 border-b border-slate-100 dark:border-slate-800/60"
+              >
+                Notices
+              </Link>
+              
+              {user ? (
+                <>
+                  <Link 
+                    to="/chat" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-slate-650 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-bold text-sm py-2 border-b border-slate-100 dark:border-slate-800/60"
+                  >
+                    Messages
+                  </Link>
+                  <Link 
+                    to={getDashboardPath(user.role)} 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-slate-650 dark:text-slate-300 hover:text-primary dark:hover:text-violet-400 font-bold text-sm py-2 border-b border-slate-100 dark:border-slate-800/60"
+                  >
+                    Dashboard
+                  </Link>
+                  <button 
+                    onClick={() => { logout(); setMobileMenuOpen(false); }}
+                    className="text-left text-rose-500 hover:text-rose-600 font-bold text-sm py-2"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <div className="flex gap-4 pt-2">
+                  <Link 
+                    to="/login" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex-grow py-3 text-center rounded-xl font-bold bg-slate-105 dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
+                  >
+                    Log In
+                  </Link>
+                  <Link 
+                    to="/signup" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex-grow py-3 text-center rounded-xl font-bold bg-primary text-white text-sm shadow-md shadow-primary/20"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ============ HERO SECTION ============ */}
@@ -1089,12 +1190,15 @@ const Home = () => {
               <div className="space-y-2 pt-2">
                 <h5 className="text-xs font-black uppercase text-slate-700 dark:text-slate-350 tracking-wider">Stay Connected</h5>
                 
-                {newsletterSubscribed ? (
-                  <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold py-2 flex items-center gap-1.5 animate-zoom-in">
-                    <CheckCircle size={14} />
-                    Thank you! Check your inbox for our onboarding guide.
+                {newsletterMsg.text && (
+                  <div className={`text-xs font-bold py-2 flex items-center gap-1.5 animate-zoom-in ${
+                    newsletterMsg.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                  }`}>
+                    {newsletterMsg.type === 'success' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
+                    {newsletterMsg.text}
                   </div>
-                ) : (
+                )}
+                {!newsletterSubscribed && (
                   <form onSubmit={handleNewsletterSubmit} className="flex max-w-sm">
                     <input 
                       type="email"
@@ -1131,24 +1235,30 @@ const Home = () => {
               <div className="space-y-4">
                 <h5 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Support</h5>
                 <ul className="space-y-2.5 text-xs text-slate-500 dark:text-slate-450">
-                  <li><a href="#" className="font-semibold hover:text-primary transition-colors">Documentation</a></li>
-                  <li><a href="#" className="font-semibold hover:text-primary transition-colors">Help Center</a></li>
-                  <li><a href="#" className="font-semibold hover:text-primary transition-colors">Developer API</a></li>
-                  <li><a href="#" className="font-semibold hover:text-primary transition-colors">Systems Status</a></li>
+                  <li><Link to="/privacy" className="font-semibold hover:text-primary transition-colors">Documentation</Link></li>
+                  <li><Link to="/privacy" className="font-semibold hover:text-primary transition-colors">Help Center</Link></li>
+                  <li><Link to="/terms" className="font-semibold hover:text-primary transition-colors">Developer API</Link></li>
+                  <li><Link to="/terms" className="font-semibold hover:text-primary transition-colors">Systems Status</Link></li>
                 </ul>
               </div>
 
               <div className="space-y-4 col-span-2 sm:col-span-1">
                 <h5 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Connect</h5>
                 <div className="flex gap-3">
-                  {['Twitter', 'Instagram', 'LinkedIn'].map(social => (
+                  {[
+                    { name: 'Twitter', url: 'https://x.com' },
+                    { name: 'Instagram', url: 'https://instagram.com' },
+                    { name: 'LinkedIn', url: 'https://linkedin.com' }
+                  ].map(social => (
                     <a 
-                      key={social} 
-                      href="#" 
+                      key={social.name} 
+                      href={social.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
                       className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 hover:border-primary/20 hover:scale-105 active:scale-95 transition-all"
-                      title={social}
+                      title={social.name}
                     >
-                      <span className="text-[10px] font-bold uppercase">{social[0]}</span>
+                      <span className="text-[10px] font-bold uppercase">{social.name[0]}</span>
                     </a>
                   ))}
                 </div>
@@ -1164,9 +1274,9 @@ const Home = () => {
               © 2026 CareSync Inc. Built with love and human craft for future leaders.
             </p>
             <div className="flex gap-6 text-[9px] sm:text-xs font-bold text-slate-400">
-              <a href="#" className="hover:text-slate-950 dark:hover:text-slate-100 transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-slate-950 dark:hover:text-slate-100 transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-slate-950 dark:hover:text-slate-100 transition-colors">Security Details</a>
+              <Link to="/privacy" className="hover:text-slate-950 dark:hover:text-slate-100 transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-slate-950 dark:hover:text-slate-100 transition-colors">Terms of Service</Link>
+              <Link to="/privacy" className="hover:text-slate-950 dark:hover:text-slate-100 transition-colors">Security Details</Link>
             </div>
           </div>
 

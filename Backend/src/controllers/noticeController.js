@@ -44,7 +44,18 @@ exports.createNotice = async (req, res) => {
 exports.getNotices = async (req, res) => {
     try {
         const notices = await Notice.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, data: notices });
+        
+        // If no notices exist, provide a default one so the page doesn't look empty
+        const displayNotices = notices.length > 0 ? notices : [{
+            _id: 'default-1',
+            title: 'Welcome to CareSync',
+            message: 'This is our official notice board. Check back here for school updates and safety protocols.',
+            type: 'General',
+            createdAt: new Date(),
+            createdBy: 'System'
+        }];
+
+        res.status(200).json({ success: true, data: displayNotices });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
