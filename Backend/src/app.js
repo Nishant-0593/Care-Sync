@@ -35,7 +35,7 @@ app.use(cookieParser());
 app.use(requestLogger);
 
 app.use(session({
-    secret: process.env.JWT_SECRET,
+    secret: process.env.JWT_SECRET || 'test_secret_for_tests',
     resave: false,
     saveUninitialized: false,
     cookie: {
