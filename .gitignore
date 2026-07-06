@@ -38,3 +38,5 @@ scratch/
 
 # Gemini / AI assistant files
 .gemini/
+
+/generated/prisma

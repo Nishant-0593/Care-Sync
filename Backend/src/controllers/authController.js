@@ -1,7 +1,8 @@
-const User = require('../models/User');
+const { prisma } = require('../config/db_postgres');
 const jwt = require('jsonwebtoken');
-const sendEmail = require('../utils/sendEmail');
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const sendEmail = require('../utils/sendEmail');
 
 // Generate JWT
 const generateToken = (id) => {
@@ -17,29 +18,26 @@ exports.register = async (req, res) => {
     try {
         const { name, email, password, role, adminSecretKey, teacherSecretKey } = req.body;
 
-        const userExists = await User.findOne({ email });
+        const userExists = await prisma.users.findUnique({ where: { email } });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
         // Role-based security checks
         if (role === 'admin') {
-            // 1. Check if an admin already exists
-            const adminExists = await User.findOne({ role: 'admin' });
+            const adminExists = await prisma.users.findFirst({ where: { role: 'admin' } });
             if (adminExists) {
                 return res.status(400).json({ 
                     message: 'An Administrator account already exists. Only one Administrator is allowed.' 
                 });
             }
 
-            // 2. Verify Admin Secret Key
             if (adminSecretKey !== process.env.ADMIN_SIGNUP_KEY) {
                 return res.status(401).json({ 
                     message: 'Unauthorized: Invalid Admin Secret Key. You cannot create an Administrator account.' 
                 });
             }
         } else if (role === 'teacher') {
-            // Verify Teacher Secret Key
             if (teacherSecretKey !== process.env.TEACHER_SIGNUP_KEY) {
                 return res.status(401).json({ 
                     message: 'Unauthorized: Invalid Teacher Invite Code. You cannot create a Teacher account.' 
@@ -47,16 +45,16 @@ exports.register = async (req, res) => {
             }
         }
 
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const user = await prisma.users.create({
+            data: { name, email, password: hashedPassword, role: role || 'parent' },
+            select: { id: true, name: true, email: true, role: true }
         });
 
-        const token = generateToken(user._id);
+        const token = generateToken(user.id);
 
-        // Set cookie
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -67,12 +65,7 @@ exports.register = async (req, res) => {
         res.status(201).json({
             success: true,
             token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
+            user
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -90,14 +83,18 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'Please provide an email and password' });
         }
 
-        const user = await User.findOne({ email }).select('+password');
-        if (!user || !(await user.matchPassword(password))) {
+        const user = await prisma.users.findUnique({ where: { email } });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const token = generateToken(user._id);
+        const token = generateToken(user.id);
 
-        // Set cookie
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -109,7 +106,7 @@ exports.login = async (req, res) => {
             success: true,
             token,
             user: {
-                id: user._id,
+                id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role
@@ -125,19 +122,19 @@ exports.login = async (req, res) => {
 // @access  Public
 exports.forgotPassword = async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.body.email });
-
+        const user = await prisma.users.findUnique({ where: { email: req.body.email } });
         if (!user) {
             return res.status(404).json({ message: 'There is no user with that email' });
         }
 
-        // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+        const expires = new Date(Date.now() + 10 * 60 * 1000); 
 
-        // Hash OTP and set to user model
-        user.otp = crypto.createHash('sha256').update(otp).digest('hex');
-        user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 mins
-        await user.save({ validateBeforeSave: false });
+        await prisma.users.update({
+            where: { id: user.id },
+            data: { otp: hashedOtp, otp_expires: expires }
+        });
 
         const message = `Your password reset OTP is: ${otp}\nIf you did not request this, please ignore this email.`;
 
@@ -149,11 +146,11 @@ exports.forgotPassword = async (req, res) => {
             });
         } catch (error) {
             console.error('Failed to send email:', error.message);
-            // In development mode, allow proceeding even if email fails so user can test using console OTP
             if (process.env.NODE_ENV !== 'development') {
-                user.otp = undefined;
-                user.otpExpires = undefined;
-                await user.save({ validateBeforeSave: false });
+                await prisma.users.update({
+                    where: { id: user.id },
+                    data: { otp: null, otp_expires: null }
+                });
                 return res.status(500).json({ message: 'Email could not be sent' });
             }
         }
@@ -178,27 +175,31 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
     try {
         const { email, otp, newPassword } = req.body;
-
         const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
 
-        const user = await User.findOne({
-            email,
-            otp: hashedOtp,
-            otpExpires: { $gt: Date.now() }
+        const user = await prisma.users.findFirst({
+            where: {
+                email,
+                otp: hashedOtp,
+                otp_expires: { gt: new Date() }
+            }
         });
 
         if (!user) {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
 
-        user.password = newPassword;
-        user.otp = undefined;
-        user.otpExpires = undefined;
-        await user.save();
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await prisma.users.update({
+            where: { id: user.id },
+            data: { password: hashedPassword, otp: null, otp_expires: null }
+        });
 
         res.status(200).json({
             success: true,
-            token: generateToken(user._id)
+            token: generateToken(user.id)
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -222,11 +223,16 @@ exports.logout = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const { role } = req.query;
-        let query = { _id: { $ne: req.user.id } }; // Exclude current admin
+        const whereClause = { id: { not: req.user.id } };
+
         if (role) {
-            query.role = role;
+            whereClause.role = role;
         }
-        const users = await User.find(query).select('name email role');
+
+        const users = await prisma.users.findMany({
+            where: whereClause,
+            select: { id: true, name: true, email: true, role: true }
+        });
         res.status(200).json({ success: true, data: users });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -238,7 +244,10 @@ exports.getUsers = async (req, res) => {
 // @access  Public
 exports.checkAdminExists = async (req, res) => {
     try {
-        const admin = await User.findOne({ role: 'admin' });
+        const admin = await prisma.users.findFirst({
+            where: { role: 'admin' },
+            select: { id: true }
+        });
         res.status(200).json({ exists: !!admin });
     } catch (error) {
         res.status(500).json({ message: error.message });
